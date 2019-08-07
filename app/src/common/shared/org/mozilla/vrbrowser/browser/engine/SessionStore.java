@@ -220,9 +220,7 @@ public class SessionStore implements GeckoSession.PermissionDelegate {
 
     public boolean getAutoplayEnabled() {
         if (mRuntime != null) {
-            return mRuntime.getSettings().getAutoplayDefault() == GeckoRuntimeSettings.AUTOPLAY_DEFAULT_ALLOWED ?
-                    true :
-                    false;
+            return mRuntime.getSettings().getAutoplayDefault() == GeckoRuntimeSettings.AUTOPLAY_DEFAULT_ALLOWED;
         }
 
         return false;
@@ -231,6 +229,12 @@ public class SessionStore implements GeckoSession.PermissionDelegate {
     public void setLocales(List<String> locales) {
         if (mRuntime != null) {
             mRuntime.getSettings().setLocales(locales.stream().toArray(String[]::new));
+        }
+    }
+
+    public void clearCache() {
+        for (Map.Entry<Integer, SessionStack> entry : mSessionStacks.entrySet()) {
+            entry.getValue().clearCache();
         }
     }
 

@@ -79,6 +79,8 @@ public class SessionStack implements ContentBlocking.Delegate, GeckoSession.Navi
     private transient SharedPreferences mPrefs;
     private transient GeckoRuntime mRuntime;
     private boolean mUsePrivateMode;
+    private String mCurrentUri;
+    private String mOriginalUri;
 
     protected SessionStack(Context context, GeckoRuntime runtime, boolean usePrivateMode) {
         mRuntime = runtime;
@@ -783,7 +785,11 @@ public class SessionStack implements ContentBlocking.Delegate, GeckoSession.Navi
             if (state != null && state.mSettings.getUserAgentMode() != mode) {
                 state.mSettings.setUserAgentMode(mode);
                 mCurrentSession.getSettings().setUserAgentMode(mode);
-                mCurrentSession.reload();
+                if (mOriginalUri != null) {
+                    mCurrentSession.loadUri(mOriginalUri, GeckoSession.LOAD_FLAGS_BYPASS_CACHE);
+                } else {
+                    mCurrentSession.reload();
+                }
             }
         }
     }
@@ -891,6 +897,14 @@ public class SessionStack implements ContentBlocking.Delegate, GeckoSession.Navi
             return GeckoResult.ALLOW;
         }
 
+        if (aRequest.isRedirect) {
+            if (mOriginalUri == null) {
+                mOriginalUri = mCurrentUri;
+            }
+        } else {
+            mOriginalUri = null;
+        }
+
         final GeckoResult<AllowOrDeny> result = new GeckoResult<>();
         AtomicInteger count = new AtomicInteger(0);
         AtomicBoolean allowed = new AtomicBoolean(false);
@@ -907,7 +921,7 @@ public class SessionStack implements ContentBlocking.Delegate, GeckoSession.Navi
                 return null;
             });
         }
-
+        mCurrentUri = aRequest.uri;
         return result;
     }
 

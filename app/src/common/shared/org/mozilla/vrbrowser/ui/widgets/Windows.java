@@ -373,6 +373,7 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, GeckoSessio
         } else {
             focusWindow(getFrontWindow());
         }
+        updateViews();
         mWidgetManager.pushWorldBrightness(this, WidgetManagerDelegate.DEFAULT_DIM_BRIGHTNESS);
     }
 
@@ -389,6 +390,7 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, GeckoSessio
             setWindowVisible(window, false);
         }
         focusWindow(getFrontWindow());
+        updateViews();
         mWidgetManager.popWorldBrightness(this);
     }
 
@@ -464,6 +466,8 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, GeckoSessio
             for (WindowState windowState : windowsState.privateWindowsState) {
                 WindowWidget window = addWindow(windowState);
                 window.getSessionStack().restore(windowState.sessionStack, windowState.currentSessionId);
+                if (!windowsState.privateMode)
+                    setWindowVisible(window, false);
             }
             mPrivateMode = false;
             if (windowsState.privateMode) {
@@ -617,8 +621,10 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, GeckoSessio
             }
         }
         if (isInPrivateMode() && mPrivateWindows.size() == 1) {
-            mFocusedWindow.getTopBar().setMoveLeftButtonEnabled(false);
-            mFocusedWindow.getTopBar().setMoveRightButtonEnabled(false);
+            if (mFocusedWindow != null) {
+                mFocusedWindow.getTopBar().setMoveLeftButtonEnabled(false);
+                mFocusedWindow.getTopBar().setMoveRightButtonEnabled(false);
+            }
         }
     }
 

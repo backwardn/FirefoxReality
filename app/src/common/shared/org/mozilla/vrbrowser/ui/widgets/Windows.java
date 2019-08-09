@@ -569,7 +569,7 @@ public class Windows implements TrayListener, TopBarWidget.Delegate, GeckoSessio
     public void updateCurvedMode() {
         float density = SettingsStore.getInstance(mContext).getCylinderDensity();
         boolean curved = getCurrentWindows().size() > 1 ||  density > 0;
-        if (curved != mCurvedMode) {
+        if (density > 0 && curved != mCurvedMode) {
             mCurvedMode = curved;
             for (WindowWidget window: getCurrentWindows()) {
                 placeWindow(window, window.getWindowPlacement());
